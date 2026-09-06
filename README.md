@@ -13,6 +13,19 @@ minimally connected — useful for heterophilic graphs, where connected nodes te
 - David Poss — 316936111
 - Zohar Ben Hayoun — 315571604
 
+## What's ours vs. what's original
+
+- **Ours:** `notebooks/MaxCutPool_Project.ipynb` — all of the reproduction pipeline, result
+  parsing/analysis, plots, the extra experiments (delta sensitivity, LEVS spectral
+  warm-start), and the write-up of findings and challenges. This is the actual project
+  deliverable.
+- **Original, with our fix:** `MaxCutPool/` is the paper authors' code (NGMLGroup/MaxCutPool),
+  kept here so the notebook can run the official training scripts unmodified as the
+  reproduction baseline. We made one change to it: `run_maxcut.py`,
+  `run_graph_classification.py`, and `run_node_classification.py` now pick
+  `accelerator='gpu' if torch.cuda.is_available() else 'cpu'` instead of hard-coding `'gpu'`,
+  since we didn't always have GPU access. No other files in `MaxCutPool/` were modified.
+
 ## What's in this repo
 
 ```
@@ -55,3 +68,35 @@ conda activate maxcutpool
 environment). Then launch Jupyter and run `notebooks/MaxCutPool_Project.ipynb` top to
 bottom. Datasets are downloaded automatically on first use; a GPU is recommended but not
 required.
+
+## Running the individual experiments
+
+The notebook runs each experiment below itself (as a subprocess, so the printed training
+logs show up inline). They can also be run directly from a terminal, from inside
+`MaxCutPool/`:
+
+```bash
+cd MaxCutPool
+
+# 1. MaxCut optimization on a ring graph
+python run_maxcut.py dataset=ring
+
+# 2. Graph classification on MUTAG, single fold
+python run_graph_classification.py dataset=mutag pooler=maxcutpool
+
+# 2b. Full 10-fold benchmark, MUTAG, comparing poolers
+python run_graph_classification.py -m dataset=mutag pooler=maxcutpool,topk,nopool \
+    dataset.hparams.fold_id=0,1,2,3,4,5,6,7,8,9
+
+# 3. Node classification on Roman-Empire, 10-fold
+python run_node_classification.py -m dataset=roman epochs=20000 callbacks.patience=2000 \
+    dataset.hparams.fold=0,1,2,3,4,5,6,7,8,9
+
+# extra: graph classification on NCI1 (larger graphs), comparing poolers
+python run_graph_classification.py -m dataset=NCI1 pooler=maxcutpool,topk,nopool \
+    dataset.hparams.fold_id=0,1,2,3,4,5,6,7,8,9
+```
+
+Each run prints a results table and a checkpoint path at the end; the notebook parses
+those from the captured output (e.g. to reload a trained model for visualization) rather
+than re-implementing the training loop.
