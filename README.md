@@ -13,19 +13,6 @@ minimally connected — useful for heterophilic graphs, where connected nodes te
 - David Poss — 316936111
 - Zohar Ben Hayoun — 315571604
 
-## What's ours vs. what's original
-
-- **Ours:** `notebooks/MaxCutPool_Project.ipynb` — all of the reproduction pipeline, result
-  parsing/analysis, plots, the extra experiments (delta sensitivity, LEVS spectral
-  warm-start), and the write-up of findings and challenges. This is the actual project
-  deliverable.
-- **Original, with our fix:** `MaxCutPool/` is the paper authors' code (NGMLGroup/MaxCutPool),
-  kept here so the notebook can run the official training scripts unmodified as the
-  reproduction baseline. We made one change to it: `run_maxcut.py`,
-  `run_graph_classification.py`, and `run_node_classification.py` now pick
-  `accelerator='gpu' if torch.cuda.is_available() else 'cpu'` instead of hard-coding `'gpu'`,
-  since we didn't always have GPU access. No other files in `MaxCutPool/` were modified.
-
 ## What's in this repo
 
 ```
